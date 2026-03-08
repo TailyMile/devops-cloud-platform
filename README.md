@@ -6,6 +6,25 @@
 
 Simple cloud infrastructure built with Terraform.
 
+## Current Platform Status
+
+Completed:
+
+- Course 1 — Cloud Infrastructure Fundamentals
+- Course 2 — Terraform Production Patterns
+- Course 3 — Docker Platform Engineering
+
+Current implemented capabilities:
+
+- Terraform-based VM infrastructure
+- Containerized Nginx service
+- Multi-stage Docker build
+- GitHub Actions image build pipeline
+- GHCR image publishing
+- Docker Compose runtime
+- Container healthcheck
+- Runtime resource limits
+
 ## Architecture
 
 Terraform provisions:

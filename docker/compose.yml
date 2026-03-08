@@ -1,6 +1,9 @@
 services:
   web:
     image: ghcr.io/tailymile/devops-cloud-platform/nginx:${IMAGE_TAG}
+    pull_policy: always
+    mem_limit: 64m
+    cpus: 0.25
     ports:
       - "8080:80"
     restart: unless-stopped

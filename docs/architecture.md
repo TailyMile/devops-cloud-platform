@@ -1,116 +1,61 @@
-# DevOps Cloud Platform — Architecture
+# Architecture
 
-This document describes the current architecture of the DevOps Cloud Platform repository.
+## Current Stage — After Course 3
 
----
+### Infrastructure Layer
 
-# Infrastructure Architecture
+Internet  
+↓  
+GCP VM  
+↓  
+Docker Engine  
 
-Internet
-   │
-GCP VPC
-   │
-Firewall Rules
-   │
-Compute Engine VM
-   │
-Docker Runtime
-   │
-Nginx Container
+### Build and Delivery Layer
 
----
+GitHub Repository  
+↓  
+GitHub Actions  
+↓  
+Docker Build  
+↓  
+GHCR Image Registry  
 
-# Infrastructure Provisioning
+### Runtime Layer
 
-Infrastructure is provisioned using **Terraform**.
-
-Terraform architecture:
-
-Terraform CLI
-     │
-Remote State (GCS)
-     │
-Terraform Modules
-     │
-GCP Infrastructure
+Docker Compose  
+↓  
+Web Service  
+↓  
+Nginx Container  
+↓  
+Healthcheck + Resource Limits  
 
 ---
 
-# Terraform Architecture
+## Current Image Flow
 
-The Terraform configuration follows a **modular infrastructure layout**.
-
-terraform
-├ modules
-│   ├ network
-│   │
-│   │  Creates:
-│   │  - VPC network
-│   │  - firewall rules
-│   │
-│   └ compute
-│
-│      Creates:
-│      - Compute Engine VM
-│
-└ environments
-    ├ dev
-    │
-    │  Infrastructure for development environment
-    │
-    └ prod
-       Infrastructure for production environment
-
-Each environment uses:
-
-- shared Terraform modules
-- independent remote state
+Source Code  
+↓  
+Dockerfile  
+↓  
+Image Build  
+↓  
+Tagging (`latest` + commit SHA)  
+↓  
+Push to GHCR  
+↓  
+Compose Deployment  
 
 ---
 
-# Remote State
+## Next Stage — Course 4
 
-Terraform state is stored in **Google Cloud Storage**.
-
-GCS Bucket
-   │
-   ├ dev/terraform
-   └ prod/terraform
-
-This ensures:
-
-- state isolation between environments
-- safe collaboration
-- CI/CD compatibility
-
----
-
-# Current Platform Architecture (After Course 2)
-
-Internet
-   ↓
-GCP VM
-   ↓
-Docker Engine
-   ↓
-Container Image
-   ↓
-Nginx Service
-
----
-
-# Next Evolution Step
-
-The next stage introduces **Docker Platform Engineering**.
-
-The platform will evolve toward:
-
-Terraform
-   │
-VM
-   │
-Docker Image
-   │
-Container Registry
-   │
-Application Container
+Internet  
+↓  
+Load Balancer / Service  
+↓  
+Kubernetes Cluster  
+↓  
+Pods  
+↓  
+Container Image from GHCR

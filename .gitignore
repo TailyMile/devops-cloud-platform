@@ -1,17 +1,12 @@
-# terraform
+# Terraform
 .terraform/
-terraform.tfstate
-terraform.tfstate.*
-*.tfvars
+*.tfstate
+*.tfstate.*
 .terraform.lock.hcl
 
-# credentials
-*.json
-*.key
+# Environment
+.env
 
-# logs
-*.log
-
-# OS
-.DS_Store
-
+# OS / IDE
+.vscode/
+.idea/
