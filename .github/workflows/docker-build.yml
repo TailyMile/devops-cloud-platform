@@ -2,11 +2,7 @@ name: build-and-push-image
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'docker/app/**'
-      - '.github/workflows/docker-build.yml'
+  workflow_dispatch:
 
 jobs:
   docker:
@@ -17,6 +13,13 @@ jobs:
       packages: write
 
     steps:
+      - name: Show context
+        run: |
+          echo "ref=${GITHUB_REF}"
+          echo "sha=${GITHUB_SHA}"
+          echo "repository=${GITHUB_REPOSITORY}"
+          echo "actor=${GITHUB_ACTOR}"
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
