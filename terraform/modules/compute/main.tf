@@ -1,16 +1,16 @@
 resource "google_compute_instance" "vm" {
-  name         = var.vm_name
+  name         = var.instance_name
   machine_type = var.machine_type
   zone         = var.zone
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
+      image = var.image
     }
   }
 
   network_interface {
-    network = google_compute_network.vpc.name
+    subnetwork  = var.subnet_name
 
     access_config {}
   }
