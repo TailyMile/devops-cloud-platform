@@ -1,13 +1,16 @@
-FROM nginx:1.27-alpine
+FROM alpine:3.20 AS builder
 
-LABEL maintainer="devops-cloud-platform"
-LABEL description="DevOps Cloud Platform demo service"
+WORKDIR /build
+
+COPY index.html .
+
+RUN echo "Build stage completed"
+
+FROM nginx:1.27-alpine
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-COPY index.html /usr/share/nginx/html/index.html
-
-RUN chmod -R 755 /usr/share/nginx/html
+COPY --from=builder /build/index.html /usr/share/nginx/html/index.html
 
 EXPOSE 80
 
