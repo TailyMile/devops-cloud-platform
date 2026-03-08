@@ -13,15 +13,13 @@ jobs:
       packages: write
 
     steps:
-      - name: Show context
-        run: |
-          echo "ref=${GITHUB_REF}"
-          echo "sha=${GITHUB_SHA}"
-          echo "repository=${GITHUB_REPOSITORY}"
-          echo "actor=${GITHUB_ACTOR}"
-
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Convert repository name to lowercase
+        id: repo
+        run: |
+          echo "repo=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -32,8 +30,8 @@ jobs:
 
       - name: Build image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/nginx:1.0 ./docker/app
+          docker build -t ghcr.io/${{ steps.repo.outputs.repo }}/nginx:1.0 ./docker/app
 
       - name: Push image
         run: |
-          docker push ghcr.io/${{ github.repository }}/nginx:1.0
+          docker push ghcr.io/${{ steps.repo.outputs.repo }}/nginx:1.0
