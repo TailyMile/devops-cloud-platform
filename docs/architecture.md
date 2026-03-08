@@ -87,17 +87,15 @@ This ensures:
 
 # Current Platform Architecture (After Course 2)
 
-Terraform
-   │
-GCS Remote State
-   │
-GCP Infrastructure
-   │
-Compute Engine VM
-   │
-Docker
-   │
-Nginx container
+Internet
+   ↓
+GCP VM
+   ↓
+Docker Engine
+   ↓
+Container Image
+   ↓
+Nginx Service
 
 ---
 
