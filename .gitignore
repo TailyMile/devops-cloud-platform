@@ -1,0 +1,16 @@
+# terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
+
+# credentials
+*.json
+*.key
+
+# logs
+*.log
+
+# OS
+.DS_Store
+terraform/.terraform.lock.hcl
