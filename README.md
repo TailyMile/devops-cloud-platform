@@ -1,3 +1,7 @@
+![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4)
+![GCP](https://img.shields.io/badge/Cloud-GCP-blue)
+![Docker](https://img.shields.io/badge/Container-Docker-2496ED)
+
 # Terraform GCP Docker Lab
 
 Simple cloud infrastructure built with Terraform.
