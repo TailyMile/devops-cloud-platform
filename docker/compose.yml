@@ -1,0 +1,6 @@
+services:
+  web:
+    image: ghcr.io/tailymile/devops-cloud-platform/nginx:${IMAGE_TAG}
+    ports:
+      - "8080:80"
+    restart: unless-stopped
