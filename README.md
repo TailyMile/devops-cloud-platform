@@ -47,13 +47,30 @@ terraform apply
 
 A VM is created and Nginx becomes available on port 80.
 
-## Stack
+## Platform Stack
+
+Infrastructure
 
 - Terraform
 - Google Cloud Platform
-- Compute Engine
+- GKE
+
+Container Platform
+
 - Docker
-- Nginx
+- Kubernetes
+
+CI/CD
+
+- GitHub Actions
+- GitHub Container Registry
+
+Reliability
+
+- health probes
+- rolling deployments
+- autoscaling
+- PodDisruptionBudget
 
 ## Learning Goals
 

@@ -2,18 +2,41 @@
 
 ## Course Progress
 
-| Course   | Topic                             | Status          |
-|----------|-----------------------------------|-----------------|
-| Course 1 | Cloud Infrastructure Fundamentals | ✅ Completed     |
-| Course 2 | Terraform Production Patterns     | ✅ Completed     |
-| Course 3 | Docker Platform Engineering       | ✅ Completed     |
-| Course 4 | Kubernetes (GKE)                  | ⏳ Next          |
-| Course 5 | Observability                     | ⏳ Planned       |
-| Course 6 | DevOps Platform                   | ⏳ Planned       |
+| Course | Topic                        | Status |
+|------|-----------------------------|--------|
+| 1 | Cloud Infrastructure           | ✅ |
+| 2 | Terraform Production Patterns  | ✅ |
+| 3 | Docker Platform Engineering    | ✅ |
+| 4 | Kubernetes Runtime (GKE)       | ✅ |
+| 5 | Observability                  | ⏳ |
 
 ---
 
 ## Latest Update
+
+### Course 4 — Kubernetes Runtime (GKE)
+Status: ✅ Completed
+
+Implemented:
+- GKE cluster provisioning via Terraform
+- Node pool configuration
+- VPC networking with secondary IP ranges for Pods and Services
+- Kubernetes Deployment for Nginx service
+- ClusterIP Service
+- GKE Ingress with external HTTP Load Balancer
+- Readiness and liveness probes
+- Resource requests and limits
+- Rolling update deployment strategy
+- Topology spread constraints for zone distribution
+- Horizontal Pod Autoscaler (HPA)
+- PodDisruptionBudget for availability protection
+
+Key outcomes:
+- Runtime migrated from Docker Compose to Kubernetes
+- Application now runs on a multi-zone GKE cluster
+- External traffic handled via GCP HTTP Load Balancer
+- Platform supports autoscaling and safe rolling deployments
+- Repository now represents a production-style Kubernetes runtime platform
 
 ### Course 3 — Docker Platform Engineering
 Status: ✅ Completed

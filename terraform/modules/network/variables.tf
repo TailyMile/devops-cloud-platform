@@ -21,3 +21,19 @@ variable "subnet_cidr" {
 variable "environment" {
   type = string
 }
+
+variable "pods_range_name" {
+  type = string
+}
+
+variable "pods_range_cidr" {
+  type = string
+}
+
+variable "services_range_name" {
+  type = string
+}
+
+variable "services_range_cidr" {
+  type = string
+}

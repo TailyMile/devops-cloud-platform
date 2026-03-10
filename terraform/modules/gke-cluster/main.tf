@@ -1,0 +1,43 @@
+resource "google_container_cluster" "cluster" {
+  name     = var.cluster_name
+  location = var.region
+  deletion_protection = false
+  network    = var.network
+  subnetwork = var.subnetwork
+
+  node_locations = var.node_locations
+
+  remove_default_node_pool = true
+  initial_node_count       = 1
+
+  node_config {
+    machine_type = var.machine_type
+    disk_type    = "pd-standard"
+    disk_size_gb = 30
+  }
+
+  release_channel {
+    channel = var.release_channel
+  }
+  ip_allocation_policy {
+    cluster_secondary_range_name  = var.pods_range_name
+    services_secondary_range_name = var.services_range_name
+  }
+}
+
+resource "google_container_node_pool" "nodes" {
+  name       = "${var.cluster_name}-pool"
+  cluster    = google_container_cluster.cluster.name
+  location   = var.region
+  node_count = var.node_count
+
+  node_config {
+    machine_type = var.machine_type
+    disk_type    = "pd-standard"
+    disk_size_gb = 30
+
+    labels = {
+      role = "general"
+    }
+  }
+}
