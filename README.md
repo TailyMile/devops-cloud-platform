@@ -1,98 +1,118 @@
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4)
 ![GCP](https://img.shields.io/badge/Cloud-GCP-blue)
 ![Docker](https://img.shields.io/badge/Container-Docker-2496ED)
+![Kubernetes](https://img.shields.io/badge/Orchestration-Kubernetes-326CE5)
 
-# Terraform GCP Docker Lab
+# DevOps Cloud Platform Lab
 
-Simple cloud infrastructure built with Terraform.
+Hands-on learning project focused on building a small cloud platform using modern DevOps tooling.
 
-## Current Platform Status
+The platform evolves step-by-step from basic cloud infrastructure to a Kubernetes runtime with observability.
 
-Completed:
+---
 
-- Course 1 — Cloud Infrastructure Fundamentals
-- Course 2 — Terraform Production Patterns
-- Course 3 — Docker Platform Engineering
+# Architecture Overview
 
-Current implemented capabilities:
+Traffic flow:
 
-- Terraform-based VM infrastructure
-- Containerized Nginx service
-- Multi-stage Docker build
-- GitHub Actions image build pipeline
-- GHCR image publishing
-- Docker Compose runtime
-- Container healthcheck
-- Runtime resource limits
+Internet
+→ GCP HTTP Load Balancer
+→ Kubernetes Ingress
+→ Service
+→ Deployment
+→ Pods
 
-## Architecture
+Observability:
 
-Terraform provisions:
+Logs
+Pods → Alloy → Loki
 
-- GCP VPC network
-- Firewall rules (SSH, HTTP)
-- Compute Engine VM
-- Startup script bootstrap
+Metrics
+Kubernetes / node exporters → Prometheus → Alertmanager
 
-The VM automatically installs:
+Visualization
+Grafana reads data from Prometheus and Loki.
 
-- Docker
-- Nginx container
+---
 
-## Result
-
-After running:
-
-terraform apply
-
-A VM is created and Nginx becomes available on port 80.
-
-## Platform Stack
+# Platform Stack
 
 Infrastructure
 
-- Terraform
-- Google Cloud Platform
-- GKE
+* Terraform
+* Google Cloud Platform
+* GKE
 
 Container Platform
 
-- Docker
-- Kubernetes
+* Docker
+* Kubernetes
+* Nginx example workload
+
+Observability
+
+* Prometheus
+* Alertmanager
+* Grafana
+* Loki
+* Alloy
 
 CI/CD
 
-- GitHub Actions
-- GitHub Container Registry
+* GitHub Actions
+* GitHub Container Registry
 
-Reliability
+---
 
-- health probes
-- rolling deployments
-- autoscaling
-- PodDisruptionBudget
+# Repository Structure
 
-## Learning Goals
+```
+devops-cloud-platform
+│
+├ docker
+│
+├ terraform
+│  ├ modules
+│  └ environments
+│
+├ k8s
+│
+├ monitoring
+│
+└ docs
+   ├ architecture.md
+   ├ learning-log.md
+   ├ course-03-summary.md
+   ├ course-04-summary.md
+   └ course-05-summary.md
+```
 
-- Infrastructure as Code
-- VM bootstrap automation
-- Container deployment
-- Basic cloud networking
+---
 
-## Quick Start
+# Deployment
 
-Initialize terraform:
+Initialize Terraform:
 
 terraform init
 
-Preview infrastructure:
+Preview changes:
 
 terraform plan
 
-Create infrastructure:
+Deploy infrastructure:
 
 terraform apply
 
 Destroy infrastructure:
 
 terraform destroy
+
+---
+
+# Documentation
+
+Detailed project documentation is located in the `docs/` directory:
+
+* architecture description
+* learning progress log
+* course summaries

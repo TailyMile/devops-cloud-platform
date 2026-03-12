@@ -1,9 +1,9 @@
 resource "google_container_cluster" "cluster" {
-  name     = var.cluster_name
-  location = var.region
+  name                = var.cluster_name
+  location            = var.region
   deletion_protection = false
-  network    = var.network
-  subnetwork = var.subnetwork
+  network             = var.network
+  subnetwork          = var.subnetwork
 
   node_locations = var.node_locations
 

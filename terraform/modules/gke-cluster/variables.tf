@@ -1,29 +1,29 @@
 variable "project_id" {
-    type = string
+  type = string
 }
 variable "region" {
-    type = string
+  type = string
 }
 variable "cluster_name" {
-    type = string
+  type = string
 }
 variable "network" {
-    type = string
+  type = string
 }
 variable "subnetwork" {
-    type = string
+  type = string
 }
 variable "node_locations" {
-    type = list(string)
+  type = list(string)
 }
 variable "node_count" {
-    type = number
+  type = number
 }
 variable "machine_type" {
-    type = string
+  type = string
 }
 variable "release_channel" {
-    type = string
+  type = string
 }
 variable "pods_range_name" {
   type = string

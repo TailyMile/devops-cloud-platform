@@ -1,7 +1,7 @@
-project_id  = "terraform-gcp-docker-lab"
-region      = "europe-west1"
-zone        = "europe-west1-b"
-environment = "dev"
+project_id       = "terraform-gcp-docker-lab"
+region           = "europe-west1"
+zone             = "europe-west1-b"
+environment      = "dev"
 credentials_file = "~/.gcp/terraform-key.json"
 
 

@@ -1,0 +1,36 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: platform-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: platform.rules
+    rules:
+
+    - alert: PodCrashLooping
+      expr: increase(kube_pod_container_status_restarts_total[5m]) > 3
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod restarting too often"
+        description: "Container {{ $labels.container }} in pod {{ $labels.pod }} restarted more than 3 times in 5 minutes"
+
+    - alert: NodeHighCPU
+      expr: avg(rate(node_cpu_seconds_total{mode!="idle"}[5m])) by (instance) > 0.9
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Node CPU usage high"
+        description: "CPU usage on node {{ $labels.instance }} above 90%"
+
+    - alert: NodeMemoryPressure
+      expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.1
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Node memory almost exhausted"
+        description: "Available memory below 10%"

@@ -8,11 +8,35 @@
 | 2 | Terraform Production Patterns  | ✅ |
 | 3 | Docker Platform Engineering    | ✅ |
 | 4 | Kubernetes Runtime (GKE)       | ✅ |
-| 5 | Observability                  | ⏳ |
+| 5 | Observability                  | ✅ |
+| 6 | DevOps Platform                | ⏳ |
 
 ---
 
 ## Latest Update
+
+## Course 5 — Observability
+
+Status: Completed
+
+Implemented:
+
+* Prometheus monitoring stack using kube-prometheus-stack
+* Grafana dashboards and metrics visualization
+* Loki centralized log storage
+* Alloy log collector deployed as DaemonSet
+* Kubernetes metadata enrichment for logs
+* PrometheusRule alert configuration
+* Alertmanager alert routing pipeline
+* Grafana Loki datasource provisioning
+
+Key outcomes:
+
+* Platform now supports centralized logging and metrics monitoring
+* Alerting pipeline implemented for Kubernetes workloads
+* Observability stack fully integrated with the Kubernetes platform
+* Monitoring infrastructure managed via Terraform and Helm
+
 
 ### Course 4 — Kubernetes Runtime (GKE)
 Status: ✅ Completed
