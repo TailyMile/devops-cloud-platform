@@ -1,12 +1,457 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>DevOps Cloud Platform</title>
-</head>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevOps Cloud Platform - Demo Site</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f4f2eb;
+        --bg-accent: #dfeee3;
+        --surface: #fffdf8;
+        --surface-2: #fcf7ee;
+        --text: #1e2721;
+        --muted: #5b665f;
+        --line: #d9d2c5;
+        --brand: #1f8f53;
+        --brand-soft: #d5f5e3;
+        --warn: #f2b84b;
+        --radius: 18px;
+        --shadow: 0 18px 44px rgba(23, 35, 27, 0.12);
+      }
 
-<body>
-<h1>DevOps Cloud Platform</h1>
-<p>Course 6 -- Docker Platform Engineering</p>
-</body>
+      * {
+        box-sizing: border-box;
+      }
 
+      body {
+        margin: 0;
+        font-family: "Manrope", "Trebuchet MS", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at 5% -10%, #ffffff 0%, transparent 60%),
+          radial-gradient(900px 500px at 95% -10%, #f9ebc7 0%, transparent 60%),
+          linear-gradient(140deg, var(--bg) 0%, var(--bg-accent) 100%);
+      }
+
+      .site {
+        width: min(1120px, 92vw);
+        margin: 26px auto 50px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        background: rgba(255, 253, 248, 0.88);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        backdrop-filter: blur(8px);
+      }
+
+      .brand {
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--brand);
+        box-shadow: 0 0 0 8px rgba(31, 143, 83, 0.16);
+      }
+
+      .hero {
+        margin-top: 18px;
+        padding: 34px;
+        border-radius: 26px;
+        background: linear-gradient(160deg, #fffdf8 0%, #f5f3e8 100%);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 24px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        font-size: 12px;
+        letter-spacing: 1.1px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #187844;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+      }
+
+      h1 {
+        margin: 14px 0 10px;
+        font-family: "DM Serif Display", Georgia, serif;
+        font-size: clamp(34px, 6vw, 64px);
+        line-height: 0.95;
+        letter-spacing: 0.3px;
+      }
+
+      .subtitle {
+        max-width: 62ch;
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .cta-row {
+        margin-top: 22px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: 0;
+        border-radius: 12px;
+        padding: 11px 15px;
+        font-weight: 700;
+        text-decoration: none;
+        color: var(--text);
+        background: #ece8dd;
+      }
+
+      .btn.primary {
+        color: #ffffff;
+        background: #1f8f53;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 18px;
+      }
+
+      .mini-title {
+        margin: 0 0 8px;
+        font-weight: 800;
+      }
+
+      .stack {
+        list-style: none;
+        margin: 10px 0 0;
+        padding: 0;
+        display: grid;
+        gap: 8px;
+      }
+
+      .stack li {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 10px;
+        background: var(--surface-2);
+        border: 1px solid #e7dfd1;
+        border-radius: 10px;
+        font-size: 14px;
+      }
+
+      .metrics {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .metric {
+        padding: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+      }
+
+      .metric .value {
+        font-size: 30px;
+        font-weight: 800;
+      }
+
+      .metric .label {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .grid {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 12px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        align-items: center;
+        padding: 10px;
+        border-radius: 12px;
+        background: var(--surface-2);
+        border: 1px solid #e5dece;
+      }
+
+      .step strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .pill {
+        min-width: 58px;
+        text-align: center;
+        border-radius: 999px;
+        padding: 6px 8px;
+        font-size: 12px;
+        font-weight: 800;
+        background: #e9f8ee;
+        color: #1d7e4a;
+      }
+
+      .release {
+        margin-top: 10px;
+        border: 1px solid #e5dece;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 10px 12px;
+        text-align: left;
+      }
+
+      th {
+        font-size: 12px;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: #f6f1e6;
+      }
+
+      tr + tr td {
+        border-top: 1px solid #ede5d7;
+      }
+
+      .health {
+        color: #7d5600;
+        background: #fff3d6;
+        border: 1px solid #f0d89e;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .footer {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+          padding: 24px;
+        }
+
+        .metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .site {
+          width: min(1120px, 95vw);
+          margin-top: 14px;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="site">
+      <header class="topbar">
+        <div class="brand">DevOps Cloud Platform - Nginx Demo</div>
+        <div class="status">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="clock">UTC: --:--:--</span>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div>
+          <span class="eyebrow">Demo Environment</span>
+          <h1>Ship faster.<br />Observe everything.</h1>
+          <p class="subtitle">
+            This demo page is served by Nginx from your container pipeline. It
+            represents a compact cloud platform: GitHub Actions builds the
+            image, pushes to GHCR, and deploys into GKE with rolling updates
+            and health checks.
+          </p>
+          <div class="cta-row">
+            <a class="btn primary" href="#architecture">View Architecture</a>
+            <a class="btn" href="#releases">Recent Releases</a>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <p class="mini-title">Runtime Stack</p>
+          <ul class="stack">
+            <li><span>Cloud</span><strong>Google Cloud + GKE</strong></li>
+            <li><span>Build</span><strong>GitHub Actions</strong></li>
+            <li><span>Registry</span><strong>GHCR</strong></li>
+            <li><span>Observability</span><strong>Prometheus + Grafana</strong></li>
+            <li><span>Log Flow</span><strong>Alloy -> Loki</strong></li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="metrics" aria-label="Platform metrics">
+        <article class="metric">
+          <div class="value">99.95%</div>
+          <div class="label">Target availability</div>
+        </article>
+        <article class="metric">
+          <div class="value">3</div>
+          <div class="label">Nginx replicas</div>
+        </article>
+        <article class="metric">
+          <div class="value" id="latency">28ms</div>
+          <div class="label">P95 response latency</div>
+        </article>
+        <article class="metric">
+          <div class="value">2 zones</div>
+          <div class="label">Topology spread</div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="panel" id="architecture">
+          <p class="mini-title">Traffic Path</p>
+          <div class="timeline">
+            <div class="step">
+              <span class="pill">Edge</span>
+              <strong>Internet -> GCP Load Balancer</strong>
+            </div>
+            <div class="step">
+              <span class="pill">L7</span>
+              <strong>Ingress -> Kubernetes Service</strong>
+            </div>
+            <div class="step">
+              <span class="pill">Workload</span>
+              <strong>Deployment -> Pod -> Nginx container</strong>
+            </div>
+            <div class="step">
+              <span class="pill">Ops</span>
+              <strong>Metrics and logs exported to monitoring stack</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel" id="releases">
+          <p class="mini-title">Recent Releases</p>
+          <div class="release">
+            <table>
+              <thead>
+                <tr>
+                  <th>Version</th>
+                  <th>Strategy</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>nginx:a2f3c12</td>
+                  <td>RollingUpdate</td>
+                  <td><span class="health">Healthy</span></td>
+                </tr>
+                <tr>
+                  <td>nginx:c48d9e0</td>
+                  <td>Canary 10%</td>
+                  <td><span class="health">Passed</span></td>
+                </tr>
+                <tr>
+                  <td>nginx:latest</td>
+                  <td>Stable</td>
+                  <td><span class="health">Serving</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <p class="footer">
+        DevOps Cloud Platform demo page. Last refreshed at
+        <strong id="refresh">--:--:-- UTC</strong>
+      </p>
+    </main>
+
+    <script>
+      function updateUtcClock() {
+        const now = new Date();
+        const time = now.toISOString().slice(11, 19) + " UTC";
+        document.getElementById("clock").textContent = "UTC: " + time;
+        document.getElementById("refresh").textContent = time;
+      }
+
+      function updateLatency() {
+        const min = 22;
+        const max = 43;
+        const value = Math.floor(Math.random() * (max - min + 1)) + min;
+        document.getElementById("latency").textContent = value + "ms";
+      }
+
+      updateUtcClock();
+      updateLatency();
+      setInterval(updateUtcClock, 1000);
+      setInterval(updateLatency, 5000);
+    </script>
+  </body>
 </html>
