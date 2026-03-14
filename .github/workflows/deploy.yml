@@ -1,0 +1,120 @@
+name: deploy-nginx-to-gke
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Tag to deploy (empty = latest)"
+        required: false
+        type: string
+  workflow_run:
+    workflows:
+      - build-and-push-image
+    types:
+      - completed
+    branches:
+      - master
+
+concurrency:
+  group: deploy-nginx-${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
+      GKE_LOCATION: ${{ vars.GKE_LOCATION }}
+      K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE || 'default' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Convert repository name to lowercase
+        id: repo
+        run: |
+          echo "repo=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate required variables and secrets
+        run: |
+          missing=0
+
+          for var in GCP_PROJECT_ID GKE_CLUSTER GKE_LOCATION; do
+            if [ -z "${!var}" ]; then
+              echo "::error::Missing repository variable: $var"
+              missing=1
+            fi
+          done
+
+          if [ -z "${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}" ]; then
+            echo "::error::Missing repository secret: GCP_WORKLOAD_IDENTITY_PROVIDER"
+            missing=1
+          fi
+
+          if [ -z "${{ secrets.GCP_SERVICE_ACCOUNT }}" ]; then
+            echo "::error::Missing repository secret: GCP_SERVICE_ACCOUNT"
+            missing=1
+          fi
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Resolve image tag
+        id: image
+        env:
+          WORKFLOW_RUN_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
+          MANUAL_IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.image_tag || '' }}
+        run: |
+          if [ -n "$WORKFLOW_RUN_SHA" ]; then
+            tag="$WORKFLOW_RUN_SHA"
+          elif [ -n "$MANUAL_IMAGE_TAG" ]; then
+            tag="$MANUAL_IMAGE_TAG"
+          else
+            tag="latest"
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${{ steps.repo.outputs.repo }}/nginx:$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Fetch GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_LOCATION }}
+
+      - name: Apply manifests and rollout new image
+        run: |
+          kubectl create namespace "$K8S_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-deployment.yaml
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-service.yaml
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-ingress.yaml
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-pdb.yaml
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-hpa.yaml
+
+          kubectl -n "$K8S_NAMESPACE" set image deployment/nginx nginx="${{ steps.image.outputs.image }}"
+          kubectl -n "$K8S_NAMESPACE" annotate deployment/nginx devops-cloud-platform.io/image-tag="${{ steps.image.outputs.tag }}" --overwrite
+          kubectl -n "$K8S_NAMESPACE" rollout status deployment/nginx --timeout=300s
+
+      - name: Show deployed image
+        run: |
+          kubectl -n "$K8S_NAMESPACE" get deployment nginx -o jsonpath='{.spec.template.spec.containers[0].image}'
+          echo
