@@ -218,10 +218,6 @@
         box-shadow: 0 8px 20px rgba(23, 35, 27, 0.1);
       }
 
-      .service-link.disabled {
-        opacity: 0.7;
-      }
-
       .service-name {
         font-size: 14px;
         font-weight: 800;
@@ -419,21 +415,21 @@
       </section>
 
       <section class="services" id="services" aria-label="Service links">
-        <a class="service-link" id="link-nginx" href="#">
+        <a class="service-link" href="/">
           <span class="service-name">Nginx App</span>
-          <span class="service-url" id="url-nginx">Detecting URL...</span>
+          <span class="service-url">/</span>
         </a>
-        <a class="service-link" id="link-grafana" href="#">
+        <a class="service-link" href="/grafana/" target="_blank" rel="noopener">
           <span class="service-name">Grafana</span>
-          <span class="service-url" id="url-grafana">Set grafana URL in query param</span>
+          <span class="service-url">/grafana/</span>
         </a>
-        <a class="service-link" id="link-prometheus" href="#">
+        <a class="service-link" href="/prometheus/" target="_blank" rel="noopener">
           <span class="service-name">Prometheus</span>
-          <span class="service-url" id="url-prometheus">Set prometheus URL in query param</span>
+          <span class="service-url">/prometheus/</span>
         </a>
-        <a class="service-link" id="link-alertmanager" href="#">
+        <a class="service-link" href="/alertmanager/" target="_blank" rel="noopener">
           <span class="service-name">Alertmanager</span>
-          <span class="service-url" id="url-alertmanager">Set alertmanager URL in query param</span>
+          <span class="service-url">/alertmanager/</span>
         </a>
       </section>
 
@@ -514,32 +510,8 @@
         document.getElementById("latency").textContent = value + "ms";
       }
 
-      function configureServiceLink(name, fallbackUrl) {
-        const params = new URLSearchParams(window.location.search);
-        const link = document.getElementById("link-" + name);
-        const label = document.getElementById("url-" + name);
-        const override = params.get(name);
-        const url = override || fallbackUrl;
-
-        link.href = url;
-        label.textContent = url;
-
-        if (!override && fallbackUrl === "#") {
-          link.classList.add("disabled");
-          label.textContent = "Use ?" + name + "=https://your-lb-address";
-        }
-      }
-
-      function updateServiceLinks() {
-        configureServiceLink("nginx", window.location.origin);
-        configureServiceLink("grafana", "#");
-        configureServiceLink("prometheus", "#");
-        configureServiceLink("alertmanager", "#");
-      }
-
       updateUtcClock();
       updateLatency();
-      updateServiceLinks();
       setInterval(updateUtcClock, 1000);
       setInterval(updateLatency, 5000);
     </script>
