@@ -194,6 +194,45 @@
         font-size: 13px;
       }
 
+      .services {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .service-link {
+        display: grid;
+        gap: 6px;
+        padding: 14px;
+        text-decoration: none;
+        color: var(--text);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .service-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(23, 35, 27, 0.1);
+      }
+
+      .service-link.disabled {
+        opacity: 0.7;
+      }
+
+      .service-name {
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .service-url {
+        font-size: 12px;
+        color: var(--muted);
+        word-break: break-all;
+      }
+
       .grid {
         margin-top: 18px;
         display: grid;
@@ -291,6 +330,10 @@
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
+        .services {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         .grid {
           grid-template-columns: 1fr;
         }
@@ -308,6 +351,10 @@
         }
 
         .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .services {
           grid-template-columns: 1fr;
         }
       }
@@ -336,7 +383,7 @@
           </p>
           <div class="cta-row">
             <a class="btn primary" href="#architecture">View Architecture</a>
-            <a class="btn" href="#releases">Recent Releases</a>
+            <a class="btn" href="#services">Service Links</a>
           </div>
         </div>
 
@@ -371,17 +418,36 @@
         </article>
       </section>
 
+      <section class="services" id="services" aria-label="Service links">
+        <a class="service-link" id="link-nginx" href="#">
+          <span class="service-name">Nginx App</span>
+          <span class="service-url" id="url-nginx">Detecting URL...</span>
+        </a>
+        <a class="service-link" id="link-grafana" href="#">
+          <span class="service-name">Grafana</span>
+          <span class="service-url" id="url-grafana">Set grafana URL in query param</span>
+        </a>
+        <a class="service-link" id="link-prometheus" href="#">
+          <span class="service-name">Prometheus</span>
+          <span class="service-url" id="url-prometheus">Set prometheus URL in query param</span>
+        </a>
+        <a class="service-link" id="link-alertmanager" href="#">
+          <span class="service-name">Alertmanager</span>
+          <span class="service-url" id="url-alertmanager">Set alertmanager URL in query param</span>
+        </a>
+      </section>
+
       <section class="grid">
         <article class="panel" id="architecture">
           <p class="mini-title">Traffic Path</p>
           <div class="timeline">
             <div class="step">
               <span class="pill">Edge</span>
-              <strong>Internet -> GCP Load Balancer</strong>
+              <strong>Internet -> Cloud Load Balancer</strong>
             </div>
             <div class="step">
               <span class="pill">L7</span>
-              <strong>Ingress -> Kubernetes Service</strong>
+              <strong>LoadBalancer Service -> Kubernetes Node</strong>
             </div>
             <div class="step">
               <span class="pill">Workload</span>
@@ -448,8 +514,32 @@
         document.getElementById("latency").textContent = value + "ms";
       }
 
+      function configureServiceLink(name, fallbackUrl) {
+        const params = new URLSearchParams(window.location.search);
+        const link = document.getElementById("link-" + name);
+        const label = document.getElementById("url-" + name);
+        const override = params.get(name);
+        const url = override || fallbackUrl;
+
+        link.href = url;
+        label.textContent = url;
+
+        if (!override && fallbackUrl === "#") {
+          link.classList.add("disabled");
+          label.textContent = "Use ?" + name + "=https://your-lb-address";
+        }
+      }
+
+      function updateServiceLinks() {
+        configureServiceLink("nginx", window.location.origin);
+        configureServiceLink("grafana", "#");
+        configureServiceLink("prometheus", "#");
+        configureServiceLink("alertmanager", "#");
+      }
+
       updateUtcClock();
       updateLatency();
+      updateServiceLinks();
       setInterval(updateUtcClock, 1000);
       setInterval(updateLatency, 5000);
     </script>

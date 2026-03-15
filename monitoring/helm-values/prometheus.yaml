@@ -4,11 +4,25 @@ grafana:
   service:
     type: ClusterIP
 
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.monitoring.svc.cluster.local:3100
+      jsonData:
+        maxLines: 1000
+
 prometheus:
+  service:
+    type: ClusterIP
+
   prometheusSpec:
     retention: 7d
 
 alertmanager:
+  service:
+    type: ClusterIP
+
   alertmanagerSpec:
     storage:
       volumeClaimTemplate:
@@ -17,12 +31,3 @@ alertmanager:
           resources:
             requests:
               storage: 5Gi
-
-grafana:
-  additionalDataSources:
-    - name: Loki
-      type: loki
-      access: proxy
-      url: http://loki.monitoring.svc.cluster.local:3100
-      jsonData:
-        maxLines: 1000

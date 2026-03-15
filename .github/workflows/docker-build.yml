@@ -1,16 +1,57 @@
-name: build-and-push-image
+name: nginx-ci-cd
 
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Optional existing tag to deploy (skip build)"
+        required: false
+        type: string
   push:
     branches:
       - master
     paths:
       - 'docker/app/**'
+      - 'k8s/manifests/**'
       - '.github/workflows/docker-build.yml'
 
+concurrency:
+  group: nginx-ci-cd-${{ github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
-  docker:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      repo: ${{ steps.meta.outputs.repo }}
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+      image: ${{ steps.meta.outputs.image }}
+      should_build: ${{ steps.meta.outputs.should_build }}
+
+    steps:
+      - name: Prepare image metadata
+        id: meta
+        env:
+          MANUAL_IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.image_tag || '' }}
+        run: |
+          repo="${GITHUB_REPOSITORY,,}"
+
+          if [ -n "$MANUAL_IMAGE_TAG" ]; then
+            image_tag="$MANUAL_IMAGE_TAG"
+            should_build="false"
+          else
+            image_tag="$GITHUB_SHA"
+            should_build="true"
+          fi
+
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$image_tag" >> "$GITHUB_OUTPUT"
+          echo "should_build=$should_build" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/$repo/nginx:$image_tag" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prepare
+    if: ${{ needs.prepare.outputs.should_build == 'true' }}
     runs-on: ubuntu-latest
 
     permissions:
@@ -20,11 +61,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Convert repository name to lowercase
-        id: repo
-        run: |
-          echo "repo=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -42,7 +78,85 @@ jobs:
           context: ./docker/app
           push: true
           tags: |
-            ghcr.io/${{ steps.repo.outputs.repo }}/nginx:latest
-            ghcr.io/${{ steps.repo.outputs.repo }}/nginx:${{ github.sha }}
+            ghcr.io/${{ needs.prepare.outputs.repo }}/nginx:latest
+            ghcr.io/${{ needs.prepare.outputs.repo }}/nginx:${{ needs.prepare.outputs.image_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs:
+      - prepare
+      - build
+    if: ${{ needs.prepare.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    environment: prod
+
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
+      GKE_LOCATION: ${{ vars.GKE_LOCATION }}
+      K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE || 'default' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate required variables and secrets
+        run: |
+          missing=0
+
+          for var in GCP_PROJECT_ID GKE_CLUSTER GKE_LOCATION; do
+            if [ -z "${!var}" ]; then
+              echo "::error::Missing variable (check Environment or Repository scope): $var"
+              missing=1
+            fi
+          done
+
+          if [ -z "${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}" ]; then
+            echo "::error::Missing secret (check Environment or Repository scope): GCP_WORKLOAD_IDENTITY_PROVIDER"
+            missing=1
+          fi
+
+          if [ -z "${{ secrets.GCP_SERVICE_ACCOUNT }}" ]; then
+            echo "::error::Missing secret (check Environment or Repository scope): GCP_SERVICE_ACCOUNT"
+            missing=1
+          fi
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Fetch GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_LOCATION }}
+
+      - name: Apply manifests and rollout new image
+        run: |
+          kubectl create namespace "$K8S_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-deployment.yaml
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-service.yaml
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-pdb.yaml
+          kubectl -n "$K8S_NAMESPACE" apply -f k8s/manifests/nginx-hpa.yaml
+
+          kubectl -n "$K8S_NAMESPACE" set image deployment/nginx nginx="${{ needs.prepare.outputs.image }}"
+          kubectl -n "$K8S_NAMESPACE" annotate deployment/nginx devops-cloud-platform.io/image-tag="${{ needs.prepare.outputs.image_tag }}" --overwrite
+          kubectl -n "$K8S_NAMESPACE" rollout status deployment/nginx --timeout=300s
+
+      - name: Show deployed image
+        run: |
+          kubectl -n "$K8S_NAMESPACE" get deployment nginx -o jsonpath='{.spec.template.spec.containers[0].image}'
+          echo
